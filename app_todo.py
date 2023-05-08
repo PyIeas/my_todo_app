@@ -35,7 +35,7 @@ if menu == '회원가입':
             user_id = st.text_input('아이디', max_chars=12)
             col1, col2 = st.columns(2)
             user_pw = col1.text_input('비밀번호', max_chars=12, type='password')
-            user_pw_chk = col2.text_input('비밀번호 확인', max_chars=12, type=' password')
+            user_pw_chk = col2.text_input('비밀번호 확인', max_chars=12, type='password')
             user_email = st.text_input('이메일')
             user_mobile = st.text_input('휴대전화', placeholder='하이픈(-) 포함 할 것')
 
