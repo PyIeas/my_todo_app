@@ -10,14 +10,14 @@ class TodoDB:
         try:
             TodoDB.con = sqlite3.connect('todo.db', check_same_thread=False)
             c = TodoDB.con.cursor()
-            c.execute(f'CREATE TABLE IF NOT EXIST tasks'
+            c.execute(f'CREATE TABLE IF NOT EXISTS tasks'
                       f'(id INTEGER PRIMARY KEY AUTOINCREMENT,'
                       f'todo_content TEXT NOT NULL,'
                       f'todo_date TEXT NOT NULL,'
                       f'todo_time TEXT'
                       f'completed NUMERIC NOT NULL'
                       f'reg_date TEXT NOT NULL)')
-            c.execute(f'CREATE TABLE IF NOT EXIST users'
+            c.execute(f'CREATE TABLE IF NOT EXISTS users'
                       f'(id INTEGER PRIMARY KEY AUTOINCREMENT,'
                       f'user_name TEXT NOT NULL,'
                       f'user_gender TEXT NOT NULL,'
@@ -86,7 +86,7 @@ class TodoDB:
         res = c.fetchall()
         return res
 
-    #회원검색
+    # 회원 검색
     def findUserByName(self, name):
         c = TodoDB.con.cursor()
         c.execute(f"SELECT * FROM users WHERE user_name like '%{name}%'")
@@ -106,5 +106,6 @@ class TodoDB:
 
     def updateUser(db, values):
         c =TodoDB.con.cursor()
-        c.execute('UPDATE users SET user_name=?, user_gender=?, user_pw=?, user_email=?, user_mobile=? WHERE id=?', values)
+        c.execute('UPDATE users SET user_name=?, user_gender=?, user_pw=?, '
+                  'user_email=?, user_mobile=? WHERE id=?', values)
         TodoDB.con.commit()
