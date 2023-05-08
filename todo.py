@@ -10,14 +10,14 @@ class TodoDB:
         try:
             TodoDB.con = sqlite3.connect('todo.db', check_same_thread=False)
             c = TodoDB.con.cursor()
-            c.execute(f'CREATE TABLE IF NOT EXISTS tasks'
+            c.execute(f'CREATE TABLE IF NOT EXISTS tasks '
                       f'(id INTEGER PRIMARY KEY AUTOINCREMENT,'
                       f'todo_content TEXT NOT NULL,'
                       f'todo_date TEXT NOT NULL,'
-                      f'todo_time TEXT'
-                      f'completed NUMERIC NOT NULL'
+                      f'todo_time TEXT,'
+                      f'completed NUMERIC NOT NULL,'
                       f'reg_date TEXT NOT NULL)')
-            c.execute(f'CREATE TABLE IF NOT EXISTS users'
+            c.execute(f'CREATE TABLE IF NOT EXISTS users '
                       f'(id INTEGER PRIMARY KEY AUTOINCREMENT,'
                       f'user_name TEXT NOT NULL,'
                       f'user_gender TEXT NOT NULL,'
@@ -36,57 +36,58 @@ class TodoDB:
         res = c.fetchall()
         return res
 
-    #할 일 검색
+    #할일 검색
     def findTodos(self, task, date):
         c = TodoDB.con.cursor()
-        c.execute(f"SELECT * FROM tasks WHERE todo_content LIKE '%{task}%' AND todo_date LIKE '{date}%'")
+        c.execute(f"SELECT * FROM taske WHERE todo_content LIKE '%{task}%' AND todo_date LIKE '{date}%'")
         res = c.fetchall()
         return res
 
     def insertTodo(self, values):
         c = TodoDB.con.cursor()
-        c.excute('INSERT INTO tasks (todo_content, todo_date, odo_time, completed, reg_date)'
-                 'VALUES (?,?,?,?,?)', values)
+        c.execute('INSERT INTO tasks (todo_content, todo_date, todo_time, completed, reg_date)'
+                  ' VALUES (?, ?, ?, ?, ?)', values)
         TodoDB.con.commit()
         return c.lastrowid
 
     def deleteTodo(self, id):
         c = TodoDB.con.cursor()
-        c.execut(f'DELETE FROM tasks WHERE id={id}')
+        c.execute(f'DELETE FROM tasks WHERE id={id}')
         TodoDB.con.commit()
 
     def updateTodo(db, values):
         c = TodoDB.con.cursor()
-        c.execute('UPDATE tasks SET todo_content=?, todo_date, todo_time=?, completed=? WHERE id=?', values)
+        c.execute('UPDATE tasks SET todo_content=?, todo_date=?, todo_time=?,'
+                  ' completed=? WHERE id=?', values)
         TodoDB.con.commit()
 
     def updateTaskState(self, args):
         c = TodoDB.con.cursor()
-        c.execute('UPDATE tasks SET completed=?, WHERE id=?', (args[0], args[1]))
+        c.execute('UPDATE tasks SET complited=? WHERE id=?', (args[1], args[0]))
         TodoDB.con.commit()
 
     def updateTodoContent(self, args):
         c = TodoDB.con.cursor()
-        c.execute('UPDATE tasks SET todo_content=?, WHERE id=?', (args[0], args[1]))
+        c.execute('UPDATE tasks SET todo_content=? WHERE id=?', (args[1], args[0]))
         TodoDB.con.commit()
 
     def updateTodoDate(self, args):
         c = TodoDB.con.cursor()
-        c.execute('UPDATE tasks SET todo_date=?, WHERE id=?', (args[0], args[1]))
+        c.execute('UPDATE tasks SET todo_date=? WHERE id=?', (args[1], args[0]))
         TodoDB.con.commit()
 
     def updateTodoTime(self, args):
         c = TodoDB.con.cursor()
-        c.execute('UPDATE tasks SET todo_time=?, WHERE id=?', (args[0], args[1]))
+        c.execute('UPDATE tasks SET todo_time=? WHERE id=?', (args[1], args[0]))
         TodoDB.con.commit()
 
     def readUsers(self):
         c = TodoDB.con.cursor()
-        c.execute('SELECT * FROM users')
+        c.execute('SELECT * FROM users') # Select * from 테이블 : 모든 열
         res = c.fetchall()
         return res
 
-    # 회원 검색
+    #회원 검색
     def findUserByName(self, name):
         c = TodoDB.con.cursor()
         c.execute(f"SELECT * FROM users WHERE user_name like '%{name}%'")
@@ -95,10 +96,10 @@ class TodoDB:
 
     def insertUser(self, values):
         c = TodoDB.con.cursor()
-        c.execute('INSERT INTO users (user_name, '
-                  'user_gender, user_id, user_pw, '
-                  'user_email, user_mobile, reg_date) '
-                  'VALUES (?, ?, ?, ?, ?, ?, ?)', values)
+        c.execute('INSERT INTO users (user_name, user_gender, '
+                  'user_id, user_pw,' 
+                  'user_email, user_mobile, reg_date)'
+                  ' VALUES (?, ?, ?, ?, ?, ?, ?)' , values)
         TodoDB.con.commit()
         return c.lastrowid
 
@@ -108,7 +109,7 @@ class TodoDB:
         TodoDB.con.commit()
 
     def updateUser(db, values):
-        c =TodoDB.con.cursor()
-        c.execute('UPDATE users SET user_name=?, user_gender=?, user_pw=?, '
+        c = TodoDB.con.cursor()
+        c.execute('UPDATE users SET user_name=?,user_gender=?, user_pw=?,'
                   'user_email=?, user_mobile=? WHERE id=?', values)
         TodoDB.con.commit()
