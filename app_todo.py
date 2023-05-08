@@ -38,6 +38,7 @@ if menu == '회원가입':
             user_pw_chk = col2.text_input('비밀번호 확인', max_chars=12, type=' password')
             user_email = st.text_input('이메일')
             user_mobile = st.text_input('휴대전화', placeholder='하이픈(-) 포함 할 것')
+
             submit = st.form_submit_button('가입') #st.form과 한 쌍으로 작동
             if submit: # 가입 버튼을 클릭하면
                 # 이름 한글 검증
@@ -48,6 +49,7 @@ if menu == '회원가입':
                 if re.compile('[a-zA-Z0-9]+').sub('', user_id):
                     st.error('아이디는 영문자와 숫자만 입력해야 합니다.')
                     st.stop()
+
                 # 비밀번호 확인
                 if user_pw != user_pw_chk:
                     st.error('비밀번호가 일치하지 않습니다.')
@@ -72,13 +74,16 @@ if menu == '회원가입':
                     user_name, user_gender, user_id, user_pw, user_email,
                     user_mobile, str(datetime.datetime.now())
                 ))
+
     with ucol2: # 두 번째 칼럼
 
         st.subheader('회원목록')
+
         # 데이터베이스에서 회원 정보 가져오기
         users = db.readUsers()
 
         for user in users:
+
             title = user[1]+'('+ user[3] + ')'
             with st.expander(title):
                 st.write(f'{user[1]}({user[5]})')
@@ -86,7 +91,9 @@ if menu == '회원가입':
                 st.write(f'{user[6]}')
                 st.write(f'{user[7][:19]}')
 
+
 elif menu == '할일':
+
     st.subheader('할일입력')
 
     #할일 입력 폼
@@ -125,123 +132,108 @@ elif menu == '할일':
     def change_time(*args, **kargs):
         db.updateTodoTime((args[0], st.session_state[args[1]].strftime('%H:%M')))
 
------------
-def delete_todo(*args, **kargs):
-    136
-    It
-    pr1nt(tape(orgs
-    {8]))
-    137
-    db.deleteTodo(args[0])
-    138
-    139
-    140
-    todos
-    db.readTodos()
-    141
+    def delete_todo(*args, **kargs):
+        # print(type(args[0])
+        db.deleteTodo(args[0])
+
+    # 데이터베이스에서 할 일 가져오기
+    todos = db.readTodos()
     for todo in todos:
-        142
-        coll, col2, col3, col4, col5, col6 = st.columns([1, 3, 2, 2, 3, 2])
-    143
-    collvheckbox(
-        144
-    str(todo[0]),
-    145
-    value = True if todo[4] else False,
-    146
-    on_change = change_state,
-    147
-    label_visibility = 'collapsed',
-    148
-    args = (todo[0], False if todo[4] else True))
-    149
-    col2.text_input(
-        150
-    str(todo[0]),
-    151
-    value = todo[1],
-    152
-    on_change = change_content,
-    153
-    label_visibility = 'collapsed',
-    154
-    args = (todo[0], 'content' + str(todo[0])),
-    1
-    ss
-    key = 'content' + str(todo[0]))
-    156
+        col1, col2, col3, col4, col5, col6 = st.columns([1, 3, 2, 2, 3, 2])
+        col1.checkbox(
+            str(todo[0]),
+            value = True if todo[4] else False,
+            on_change = change_state,
+            label_visibility = 'collapsed',
+            args = (todo[0], False if todo[4] else True))
+        col2.text_input(
+            str(todo[0]),
+            value = todo[1],
+            on_change = change_content,
+            label_visibility = 'collapsed',
+            args = (todo[0], 'content' + str(todo[0])),
+            key = 'content' + str(todo[0]))
     col3.date_input(
+        str(todo[0]),
+        value=datetime.datetime.strptime(todo[2], '%Y-%m-%d').date(),
+        on_change=change_date,
+        label_visibility='collapsed',
+        args=(todo[0], 'date' + str(todo[0])),
+        key='date' + str(todo[0]))
+    col4.time_input(
+        str(todo[0]),
+        value=datetime.datetime.strptime(todo[3], '%H:%M').time(),
+        on_change=change_time,
+        label_visibility='collapsed',
+        args=(todo[0], 'time' + str(todo[0])),
+        key='time' + str(todo[0]))
+    col5.text(todo[5][0:19])
+    col6.button(
+        '삭제',
+        on_click=delete_todo,
+        args=(todo[0], ),
+        key='del' + str(todo[0])
+    )
 
-        193
+elif menu == '통계':
 
-    207
-    st.markdoun(  ####
-        208
-    st.dataframe(df
-    todos, use
-    container
-    width = True)
-    289
-    210
-    st.markdown('#####
-    211
-    st.dataframe(df_todos.describe(include='all').fillna(““).astype('str'),
-    use_container
-    width = True)
-    212
-    213
-    st.markdoun(  ##### 1	)
-        214
-    df
-    date = df
-    todos.toc[df
-    todos[Ú * 7] ›=    ' 2023—04—10'][['	,	>7[  ,
+    st.subheader('통계')
 
-                                       215    st.dataframe(df_date, use_container_width=True)
-                                       216
-                                       217 elif menu == ' ,j ':
-    218
-    219
+    users = db.readUsers()
+    todos = db.readTodos()
+
+    col1, col2 = st.columns([5,5])
+
+    df_users = pd.DataFrame(users, columns=['id', '성명', '성별', '아이디', '비밀번호', '이메일', '휴대전화', '등록일시']).set_index('id')
+    df_todos = pd.DataFrame(todos, columns=['id', '할일', '날짜', '시간', '완료여부', '등록일시']).set_index('id')
+
+    with col1:
+        st.markdown('#### 회원')
+        st.dataframe(df_users, use_container_width=True)
+
+        st.markdown('##### 회원 요약')
+        st.dataframe(df_users.describe(include='all').fillna("").astype('str'), use_container_width=True)
+
+        st.markdown('##### 성별 인원')
+        df_sex = df_users['성별'].value_counts()
+        st.dataframe(df_sex)
+
+        from collections import  Counter
+        df_sex2 = Counter(df_users['성별'])
+        st.dataframe(df_sex2)
+
+
+    with col2:
+        st.markdown('#### 할일')
+        st.dataframe(df_todos, use_container_width=True)
+
+        st.markdown('##### 할일 요약')
+        st.dataframe(df_todos.describe(include='all').fillna("").astype('str'), use_container_width=True)
+
+        st.markdown('##### 조건 검색')
+        df_date = df_todos.loc[df_todos['날짜'] >= '2023—04—10'][['할일','날짜','시간']]
+        st.dataframe(df_date, use_container_width=True)
+
+elif menu == '검색':
+
     with st.sidebar:
-        228  #
-    221
-    st.subheader('A| ,j ')
-    222
-    s_name
-    st.text_input('	')
-    223
-    s_btn
-    st.button('A| ,j ')
-    224
-    225  #
-    226
-    st.subheader('	')
-    227
-    t_name
-    st.text_input('	')
-    228
-    t_date
-    st.text_input('	')
-    229
-    t_btn
-    st.button('	')
-    230
-    231
+        # 회원검색
+        st.subheader('회원검색')
+        s_name = st.text_input('성명')
+        s_btn = st.button('회원검색')
+
+        # 할일검색
+        st.subheader('할일검색')
+        t_name = st.text_input('할일')
+        t_date = st.text_input('날짜')
+        t_btn = st.button('할일검색')
+
     if s_btn:
-        232
-    res
-    db.findUserByName(s_name)
-    233
-    st.subheader('	+[')
-    234
-    st.dataframe(res)
-    235
-    236
+        res = db.findUserByName(s_name)
+        st.subheader('검색 결과')
+        st.dataframe(res)
+
     if t_btn:
-        237
-    res
-    db.findTodos(t_name, t_date)
-    238
-    st.subheader('	+[')
-    239
-    st.dataframe(res)
+        res = db.findTodos(t_name, t_date)
+        st.subheader('검색 결과')
+        st.dataframe(res)
