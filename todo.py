@@ -25,7 +25,7 @@ class TodoDB:
                       f'user_pw TEXT NOT NULL,'
                       f'user_email TEXT NOT NULL,'
                       f'user_mobile TEXT NOT NULL,'
-                      f'reg_date TEXT NOT NULL,)')
+                      f'reg_date TEXT NOT NULL)')
             TodoDB.con.commit()
         except Exception as e:
             print(e)
@@ -95,7 +95,10 @@ class TodoDB:
 
     def insertUser(self, values):
         c = TodoDB.con.cursor()
-        c.execute('INSERT INTO users (user_name, user_gender, user_id, user_pw, user_email, user_mobile, reg_date) VALUES (?,?,?,?,?,?,?)', values)
+        c.execute('INSERT INTO users (user_name, '
+                  'user_gender, user_id, user_pw, '
+                  'user_email, user_mobile, reg_date) '
+                  'VALUES (?, ?, ?, ?, ?, ?, ?)', values)
         TodoDB.con.commit()
         return c.lastrowid
 
