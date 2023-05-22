@@ -24,7 +24,7 @@ firebaseConfig = {
     'appId': "1:138718095242:web:da44f2d2f0fe0348948a73"
 }
 
-firebase_admin =pyrebase.initialize_app(firebaseConfig)
+firebase = pyrebase.initialize_app(firebaseConfig)
 auth = firebase.auth()
 
 class DB:
