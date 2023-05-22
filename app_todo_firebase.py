@@ -2,18 +2,22 @@ import streamlit as st
 import datetime
 from todo_firebase import DB, Auth
 
+# DB 객체 생성
 db = DB()
+# DB 연결
 DB.connect_db()
 
 st.set_page_config(layout="centered")
 
+# 사이드 바 생성
 sb = st.sidebar
 
-if Auth.authenticated_token(Auth.load_token()):
+if Auth.authenticate_token(Auth.load_token()):
     st.session_state['login'] = True
-else :
+else:
     st.session_state['login'] = False
 
+# 사이드바에서 선택상자를 메뉴로 사용
 options = []
 if st.session_state.login == True:
     options.append('할일')
@@ -30,15 +34,18 @@ if menu == '할일' and st.session_state.login == True:
 
     st.subheader('할일입력')
 
-    todo_content = st.text_input('할 일', placeholder='할 일을 입력하세요')
+    # 할일 입력 폼
+    # 내용, 날짜, 추가 버튼
+    todo_content = st.text_input('할 일', placeholder='할 일을 입력하세요.')
     col1, col2, col3 = st.columns([2, 2, 2])
     todo_date = col1.date_input('날짜')
     todo_time = col2.time_input('시간')
     completed = st.checkbox('완료')
     btn = st.button('추가')
 
-    if btn:
+    if btn: # 추가 버튼을 클릭했을 때
 
+        # 데이터베이스에 할 일 입력
         db.insert_todo(
             {
                 'todo_content': todo_content,
@@ -47,23 +54,30 @@ if menu == '할일' and st.session_state.login == True:
                 'completed': completed,
                 'reg_date': str(datetime.datetime.now())
             })
-
+        # 화면 새로고침
         st.experimental_rerun()
 
     st.subheader('할일목록')
 
-    def change_state(*args, **kwargs):
+    # 콜백함수들 정의
+    def change_state(*args, **kargs):
         db.update_task_state(args[0], {'completed': st.session_state['completed'+args[0]]})
-    def change_content(*args, **kwargs):
+
+    def change_content(*args, **kargs):
         print(args[0], args[1])
         db.update_task_state(args[0], {'todo_content': st.session_state['todo_content'+args[0]]})
-    def change_date(*args, **kwargs):
-        db.update_task_state(args[0], {'todo_date': st.session_state['todo_date' + args[0].strftime('%Y-%m-%d')]})
-    def change_time(*args, **kwargs):
-        db.update_task_state(args[0], {'todo_time': st.session_state['todo_time' + args[0].strftime('%H:%M')]})
-    def delete_todo(*args, **kwargs):
+
+    def change_date(*args, **kargs):
+        db.update_task_state(args[0], {'todo_date': st.session_state['todo_date'+args[0]].strftime('%Y-%m-%d')})
+
+    def change_time(*args, **kargs):
+        db.update_task_state(args[0], {'todo_time': st.session_state['todo_time'+args[0]].strftime('%H:%M')})
+
+    def delete_todo(*args, **kargs):
+        # print(type(args[0]))
         db.delete_todo(args[0])
 
+    # 데이터베이스에서 할 일 데이터 가져오기
     todos = db.read_todos()
 
     if todos is not None:
@@ -75,11 +89,12 @@ if menu == '할일' and st.session_state.login == True:
                 on_change=change_state,
                 label_visibility='collapsed',
                 args=(id, False if todo['completed'] else True),
-                key='completed'+id)
+                key='completed'+id
+            )
             col2.text_input(
                 id,
                 value=todo['todo_content'],
-                on_change=change_state,
+                on_change=change_content,
                 label_visibility='collapsed',
                 args=(id, f"{todo['todo_content']}"),
                 key='todo_content'+id)
@@ -95,14 +110,16 @@ if menu == '할일' and st.session_state.login == True:
                 value=datetime.datetime.strptime(todo['todo_time'], '%H:%M').time(),
                 on_change=change_time,
                 label_visibility='collapsed',
-                args=(id,f"{todo['todo_time']}"),
-                key = 'todo_time' + id)
+                args=(id, f"{todo['todo_time']}"),
+                key='todo_time'+id)
             col5.text(todo['reg_date'][0:19])
             col6.button(
                 '삭제',
                 on_click=delete_todo,
                 args=(id, ),
-                key='del'+id)
+                key='del' + id
+                )
+
 elif menu == '로그인':
 
     st.subheader('로그인')
@@ -121,7 +138,8 @@ elif menu == '로그인':
                 menu = '할일'
                 st.experimental_rerun()
             else:
-                st.error('아이디, 비밀번호를 확인 후 다시 로그인하세요')
+                st.error('아이디, 비밀번호를 확인 후 다시 로그인하세요.')
+
 
 elif menu == '사용자 등록':
 
