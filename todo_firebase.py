@@ -49,23 +49,18 @@ class DB:
             if search in v[key]:
                 res[k] = v
         return res
-
     def get_todos_statistics(self):
         for item in DB.todos.get().items():
             pass
-
     def insert_todo(self, values):
         new_ref = DB.todos.push()
         new_key = not new_ref.key
         new_ref.set(values)
         return new_key
-
     def delete_todo(self, key):
         DB.todos.child(key).set({})
-
     def update_todos(self, key, value):
         DB.todos.child(key).update(value)
-
     def update_task_state(self, key, value):
         DB.todos.child(key).update(value)
 

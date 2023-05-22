@@ -103,6 +103,7 @@ if menu == '할일' and st.session_state.login == True:
                 on_click=delete_todo,
                 args=(id, ),
                 key='del'+id)
+
 elif menu == '로그인':
 
     st.subheader('로그인')
