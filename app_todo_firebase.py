@@ -1,3 +1,4 @@
+import pandas as pd
 import streamlit as st
 import datetime
 from todo_firebase import DB, Auth
@@ -30,7 +31,7 @@ else:
 
 menu = sb.selectbox('메뉴', options, key='menu_key')
 
-if menu == '할일' and st.session_state.login == True:
+if menu == '할일':
 
     st.subheader('할일입력')
 
@@ -81,44 +82,53 @@ if menu == '할일' and st.session_state.login == True:
     todos = db.read_todos()
 
     if todos is not None:
-        for id, todo in todos.items():
-            col1, col2, col3, col4, col5, col6 = st.columns([1,3,2,2,3,2])
-            col1.checkbox(
-                id,
-                value=True if todo['completed'] else False,
-                on_change=change_state,
-                label_visibility='collapsed',
-                args=(id, False if todo['completed'] else True),
-                key='completed'+id
-            )
-            col2.text_input(
-                id,
-                value=todo['todo_content'],
-                on_change=change_content,
-                label_visibility='collapsed',
-                args=(id, f"{todo['todo_content']}"),
-                key='todo_content'+id)
-            col3.date_input(
-                id,
-                value=datetime.datetime.strptime(todo['todo_date'], '%Y-%m-%d').date(),
-                on_change=change_date,
-                label_visibility='collapsed',
-                args=(id, f"{todo['todo_date']}"),
-                key='todo_date'+id)
-            col4.time_input(
-                id,
-                value=datetime.datetime.strptime(todo['todo_time'], '%H:%M').time(),
-                on_change=change_time,
-                label_visibility='collapsed',
-                args=(id, f"{todo['todo_time']}"),
-                key='todo_time'+id)
-            col5.text(todo['reg_date'][0:19])
-            col6.button(
-                '삭제',
-                on_click=delete_todo,
-                args=(id, ),
-                key='del' + id
+        df = pd.DataFrame(todos).swapaxes("index", "columns")
+        # 여러 분의 코드
+
+        # 1. df에서 string to dataframe
+        df = df[['completed', 'todo_content', 'todo_date', 'todo_time', 'reg_date']]
+
+        df['todo_date'] = pd.to_datetime(df['todo_date'], format="%Y-%m-%d")
+        df['todo_time'] = pd.to_datetime(df['todo_time'], format='%H:%M')
+        df['reg_date'] = pd.to_datetime(df['reg_date'], format="%Y-%m-%d %H:%M:%S.%f")
+        df['reg_date'] = df['reg_date'].dt.strftime('%Y-%m-%d %H:%M:%S')
+        df['reg_date'] = pd.to_datetime(df['reg_date'], format="%Y-%m-%d %H:%M:%S")
+
+        # 2. edited df = st.data_editor......
+        df = st.data_editor(
+            df,
+            column_config={
+                "completed": st.column_config.CheckboxColumn(
+                    "완료여부",
+                ),
+                "todo": st.column_config.TextColumn(
+                    "할일",
+                ),
+                "todo_date": st.column_config.DateColumn(
+                    "날짜",
+                    format = 'YYYY-MM-DD',
+                    step = 1,
+                ),
+                "todo_time": st.column_config.TimeColumn(
+                    "시간",
+                    format = 'hh:mm',
+                    step = 60,
+                ),
+                "reg date": st.column_config.DatetimeColumn(
+                    "등록일시",
+                    format = 'YYYY-MM-DD hh:mm:ss',
+                    step = 60,
                 )
+            },
+            hide_index=True,
+        )
+
+        # 3. datetime to string
+        df['todo_date'] = df['todo_date'].dt.strftime('%Y-%m-%d')
+        df['todo_time'] = df['todo_time'].dt.strftime('%H:%M')
+        df['reg_date'] = df['reg_date'].dt.strftime('%Y-%m-%d %H:%M:%S')
+
+    st.json(df.swapaxes("index", "columns").to_json())
 
 elif menu == '로그인':
 
@@ -139,7 +149,6 @@ elif menu == '로그인':
                 st.experimental_rerun()
             else:
                 st.error('아이디, 비밀번호를 확인 후 다시 로그인하세요.')
-
 
 elif menu == '사용자 등록':
 
