@@ -101,7 +101,7 @@ if menu == '할일':
                 "completed": st.column_config.CheckboxColumn(
                     "완료여부",
                 ),
-                "todo": st.column_config.TextColumn(
+                "todo_content": st.column_config.TextColumn(
                     "할일",
                 ),
                 "todo_date": st.column_config.DateColumn(
@@ -114,7 +114,7 @@ if menu == '할일':
                     format = 'hh:mm',
                     step = 60,
                 ),
-                "reg date": st.column_config.DatetimeColumn(
+                "reg_date": st.column_config.DatetimeColumn(
                     "등록일시",
                     format = 'YYYY-MM-DD hh:mm:ss',
                     step = 60,
