@@ -16,18 +16,18 @@ cred = credentials.Certificate("serviceAccount.json")
 firebase_admin.initialize_app(
     cred,
     # 본인의 realtime database url을 복사
-    {'databaseURL': "https://flet-course-default-rtdb.firebaseio.com"}
+    {'databaseURL': "https://app-todo-80542-default-rtdb.firebaseio.com/"}
 )
 
 # firebase에서 프로젝트설정 > 일반 탭에서 내 앱 영역에서 인증 정보 복사해오기
 firebaseConfig = {
-    'apiKey': "AIzaSyA8gTf61ob6mBMY9Tqje16vcitYpsXIOGw",
-    'authDomain': "flet-course.firebaseapp.com",
-    'databaseURL': "https://flet-course-default-rtdb.firebaseio.com",
-    'projectId': "flet-course",
-    'storageBucket': "flet-course.appspot.com",
-    'messagingSenderId': "663795272566",
-    'appId': "1:663795272566:web:75af9ea23b7e76761e8857"
+    'apiKey': "AIzaSyB3lJZAEJErkD08VEoKFjDdVe7lNjuau2U",
+    'authDomain': "app-todo-80542.firebaseapp.com",
+    'databaseURL': "https://app-todo-80542-default-rtdb.firebaseio.com",
+    'projectId': "app-todo-80542",
+    'storageBucket': "app-todo-80542.appspot.com",
+    'messagingSenderId': "138718095242",
+    'appId': "1:138718095242:web:da44f2d2f0fe0348948a73"
     }
 
 
